@@ -26,6 +26,9 @@ add_executable(2025_I2P2_TowerDefense
     Bullet/Rocket.cpp
     Bullet/Rocket.hpp
 
+    Player/Player.cpp
+    Player/Player.hpp
+
     # TODO HACKATHON-3 (3/3): Add the new enemy source files here(okay)
     Enemy/Enemy.cpp
     Enemy/Enemy.hpp
@@ -66,8 +69,8 @@ add_executable(2025_I2P2_TowerDefense
     Engine/GameTime.hpp
     Engine/GameMoney.cpp
     Engine/GameMoney.hpp
-    #Engine/TextInput.cpp
-    #Engine/TextInput.hpp
+    Engine/map.cpp
+    Engine/map.hpp
     
     # TODO HACKATHON-2 (3/3): Add the new scene source files here(okay)
     Scene/LoseScene.cpp
