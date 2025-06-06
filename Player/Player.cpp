@@ -21,7 +21,7 @@ PlayScene *Player::getPlayScene() {
 Player::Player(std::string imgPlayer, float x, float y, int spriteW, int spriteH) : 
     Sprite(imgPlayer, x, y), spriteWidth(spriteW), spriteHeight(spriteH),
     currentFrame(0), direction(DIR_DOWN), walkTime(0), frameDuration(0.2f), frameCount(3){ 
-    hp = 3;
+    hp = 10;
 }
 
 void Player::Update(float deltaTime) {
@@ -118,4 +118,13 @@ void Player::Draw() const {
         Position.y - Anchor.y * spriteHeight,
         0
     );
+}
+
+void Player::AddHP(int amount){
+    hp+=amount;
+    if(hp>10) hp=10;
+}
+
+int Player::GetHP() const{
+    return hp;
 }

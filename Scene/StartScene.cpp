@@ -48,6 +48,11 @@ void StartScene::Initialize() {
     btn->SetOnClickCallback(std::bind(&StartScene::DailyOnClick, this, 4));
     AddNewControlObject(btn);
     AddNewObject(new Engine::Label("Reward", "pirulen.ttf", 25, halfW+600, halfH-350, 0, 0, 0, 255, 0.5, 0.5));
+
+    btn = new Engine::ImageButton("stage-select/dirt.png", "stage-select/floor.png", halfW - 500, halfH -375, 200, 50);
+    btn->SetOnClickCallback(std::bind(&StartScene::QuizOnClick, this, 4));
+    AddNewControlObject(btn);
+    AddNewObject(new Engine::Label("Quiz", "pirulen.ttf", 25, halfW-400, halfH-350, 0, 0, 0, 255, 0.5, 0.5));
 }
 void StartScene::Terminate() {
     IScene::Terminate();
@@ -64,4 +69,8 @@ void StartScene::ScoreBoardOnClick(int stage) {
 
 void StartScene::DailyOnClick(int stage) {
     Engine::GameEngine::GetInstance().ChangeScene("daily");
+}
+
+void StartScene::QuizOnClick(int stage) {
+    Engine::GameEngine::GetInstance().ChangeScene("quiz");
 }

@@ -89,6 +89,8 @@ add_executable(2025_I2P2_TowerDefense
     Scene/ScoreBoardScene.hpp
     Scene/DailyScene.cpp
     Scene/DailyScene.hpp
+    Scene/QuizScene.cpp
+    Scene/QuizScene.hpp
 
     Turret/LaserTurret.cpp
     Turret/LaserTurret.hpp

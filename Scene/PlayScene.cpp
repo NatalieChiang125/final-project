@@ -579,3 +579,7 @@ void PlayScene::ModifyReadMapTiles(int gx,int gy){
     mapState[gx][gy] = TILE_FLOOR;
     std::cout << "Tile at (" << gx << ", " << gy << ") set to FLOOR.\n";
 }
+
+Player* PlayScene::GetPlayer() const {
+    return player;
+}

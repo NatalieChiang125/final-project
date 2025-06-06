@@ -38,6 +38,7 @@ protected:
 
 public:
     Player* player;
+    Player* GetPlayer() const;
     Map* map;
     static bool DebugMode;
     static const std::vector<Engine::Point> directions;
