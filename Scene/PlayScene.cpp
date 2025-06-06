@@ -20,6 +20,8 @@
 #include "Engine/Resources.hpp"
 #include "Engine/GameTime.hpp"
 #include "Engine/GameMoney.hpp"
+#include "Engine/map.hpp"
+#include "Player/Player.hpp"
 #include "PlayScene.hpp"
 #include "Turret/LaserTurret.hpp"
 #include "Turret/MachineGunTurret.hpp"
@@ -61,17 +63,28 @@ void PlayScene::Initialize() {
     lives = 10;
     money = GameMoney::totalMoney;
     SpeedMult = 1;
+    map = new Map(); 
+    TileMapGroup = new Group();
+    //TileMapGroup->AddNewObject(map);  // 可選，除非你有設計讓 Group 負責顯示地圖物件
+    AddNewObject(TileMapGroup);
     // Add groups from bottom to top.
-    AddNewObject(TileMapGroup = new Group());
+    //AddNewObject(TileMapGroup = new Group());
     AddNewObject(GroundEffectGroup = new Group());
     AddNewObject(DebugIndicatorGroup = new Group());
-    AddNewObject(TowerGroup = new Group());
+    //AddNewObject(TowerGroup = new Group());
+    //不能刪，會潰堤
     AddNewObject(EnemyGroup = new Group());
-    AddNewObject(BulletGroup = new Group());
+    //AddNewObject(BulletGroup = new Group());
     AddNewObject(EffectGroup = new Group());
     // Should support buttons.
     AddNewControlObject(UIGroup = new Group());
     ReadMap();
+    //map = new Map("Resource/map1.txt");
+    
+    player = new Player("play/playerMove.png", MapWidth/2 +100 , MapHeight/2 + 100,64,66);
+    AddNewObject(player);
+    //新增的
+    //map = dynamic_cast<Map*>(TileMapGroup->GetObjects().front());
     ReadEnemyWave();
     mapDistance = CalculateBFSDistance();
     ConstructUI();
@@ -333,7 +346,7 @@ void PlayScene::OnKeyDown(int keyCode) {
     if (keyCode == ALLEGRO_KEY_Q) {
         // Hotkey for MachineGunTurret.
         UIBtnClicked(0);
-    } else if (keyCode == ALLEGRO_KEY_W) {
+    } else if (keyCode == ALLEGRO_KEY_Y) {
         // Hotkey for LaserTurret.
         UIBtnClicked(1);
     }else if (keyCode == ALLEGRO_KEY_E) {
@@ -346,11 +359,23 @@ void PlayScene::OnKeyDown(int keyCode) {
         // Hotkey for FireTurret.
         UIBtnClicked(4);
     }
+    if (player) {
+        player->OnKeyDown(keyCode);
+    }
+
     else if (keyCode >= ALLEGRO_KEY_0 && keyCode <= ALLEGRO_KEY_9) {
         // Hotkey for Speed up.
         SpeedMult = keyCode - ALLEGRO_KEY_0;
     }
 }
+
+void PlayScene::OnKeyUp(int keyCode) {
+    IScene::OnKeyUp(keyCode);
+    if (player) {
+        player->OnKeyUp(keyCode);
+    }
+}
+
 void PlayScene::Hit() {
     lives--;
     if (lives <= 0) {
@@ -553,4 +578,8 @@ void PlayScene::ModifyReadMapTiles(int gx,int gy){
     }
     mapState[gx][gy] = TILE_FLOOR;
     std::cout << "Tile at (" << gx << ", " << gy << ") set to FLOOR.\n";
+}
+
+Player* PlayScene::GetPlayer() const {
+    return player;
 }

@@ -12,6 +12,7 @@
 #include "Scene/SettingsScene.hpp"
 #include "Scene/ScoreBoardScene.hpp"
 #include "Scene/DailyScene.hpp"
+#include "Scene/QuizScene.hpp"
 
 int main(int argc, char **argv) {
 	Engine::LOG::SetConfig(true);
@@ -25,6 +26,7 @@ int main(int argc, char **argv) {
     game.AddNewScene("stage-select", new StageSelectScene());
 	game.AddNewScene("scoreBoard", new ScoreBoardScene());
 	game.AddNewScene("daily", new DailyScene());
+	game.AddNewScene("quiz", new QuizScene());
 	
 	game.AddNewScene("play", new PlayScene());
 	game.AddNewScene("lose", new LoseScene());
