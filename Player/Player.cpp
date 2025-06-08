@@ -10,6 +10,7 @@
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
 #include "Engine/GameEngine.hpp"
+#include "Engine/map.hpp"
 #include "Scene/PlayScene.hpp"
 #include "Player.hpp"
 
@@ -21,12 +22,13 @@ PlayScene *Player::getPlayScene() {
 Player::Player(std::string imgPlayer, float x, float y, int spriteW, int spriteH) : 
     Sprite(imgPlayer, x, y), spriteWidth(spriteW), spriteHeight(spriteH),
     currentFrame(0), direction(DIR_DOWN), walkTime(0), frameDuration(0.2f), frameCount(3){ 
-    hp = 3;
+    hp = 10;
 }
 
 void Player::Update(float deltaTime) {
     Sprite::Update(deltaTime);
-    PlayScene *scene = getPlayScene(); 
+    PlayScene *scene = getPlayScene();
+    Cam = scene->Camera;
     if (!scene || !scene->map) return;
     Engine::Point velocity(0, 0);
     if (keyDown.count(ALLEGRO_KEY_W)) velocity.y -= 1;
@@ -52,6 +54,16 @@ void Player::Update(float deltaTime) {
         }
 
         Engine::Point newPos = Position + velocity;
+
+        if(newPos.x<20) newPos.x=20;
+        if(newPos.y<35) newPos.y=35;
+
+        int mapWidth=(scene->map->GetWidth())*PlayScene::BlockSize;
+        int mapHeight=(scene->map->GetHeight())*PlayScene::BlockSize;
+
+        if(newPos.x > mapWidth*(2.25)-spriteWidth+10) newPos.x = mapWidth*(2.25)-spriteWidth+10;
+        if(newPos.y > mapHeight*(2)-spriteHeight+20) newPos.y = mapHeight*(2)-spriteHeight+20;
+
         Engine::Point tilePos = scene->map->WorldToTile(newPos);
         //PlayScene* scene = getPlayScene();
         /*if (scene && scene->map) {
@@ -107,6 +119,13 @@ void Player::OnKeyUp(int keyCode){
 }
 
 void Player::Draw() const {
+    int dx = Position.x - Cam.x;
+    int dy = Position.y - Cam.y;
+
+    //if(dx<0) dx=0;
+    //if(dy<0) dx=0;
+
+    
     //Sprite::Draw();
     al_draw_bitmap_region(
         bmp.get(), // 來自 Engine::Sprite 裡的 ALLEGRO_BITMAP*
@@ -114,8 +133,21 @@ void Player::Draw() const {
         direction * spriteHeight,     // y
         spriteWidth,                  // width
         spriteHeight,                 // height
-        Position.x - Anchor.x * spriteWidth,
-        Position.y - Anchor.y * spriteHeight,
+        dx - Anchor.x * spriteWidth,
+        dy - Anchor.y * spriteHeight,
         0
     );
+}
+
+void Player::AddHP(int amount){
+    hp+=amount;
+    if(hp>10) hp=10;
+}
+
+int Player::GetHP() const{
+    return hp;
+}
+
+Engine::Point Player::getCam(){
+    return Cam;
 }

@@ -13,17 +13,22 @@ class PlayScene;
 class Player : public Engine::Sprite {
 protected:
    
-    float hp;
+    
    
     PlayScene *getPlayScene();
     // Reference: Design Patterns - Factory Method.
 public:
+    int hp;
     Player(std::string imgPlayer, float x, float y, int spriteW, int spriteH);
     void Update(float deltaTime) override;
     void Draw() const override;
     void OnKeyDown(int keyCode);
     void OnKeyUp(int keyCode);
+    void AddHP(int amount);
+    int GetHP() const;
+    Engine::Point getCam();
 private:
+    Engine::Point Cam;
     std::set<int> keyDown; //記錄目前被按著的按鍵
     float speed = 128.0f; //移動速度
     enum Direction {
