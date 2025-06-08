@@ -7,6 +7,10 @@
 #include <fstream>
 #include <iostream>
 
+PlayScene *Map::getPlayScene() {
+    return dynamic_cast<PlayScene *>(Engine::GameEngine::GetInstance().GetActiveScene());
+}
+
 Map::Map() {
     /*loadMapFromFile(filepath);
     // 這裡可以載入圖片資源，音效等
@@ -17,6 +21,9 @@ Map::Map() {
         PlayScene::MapHeight,
         std::vector<BlockType>(PlayScene::MapWidth, BlockType::FLOOR)
     );
+
+    tileSet[0] = new Tile("play/floor.png", 0, 0);
+    tileSet[1] = new Tile("play/dirt.png", 0, 0);
 }
 
 /*Map::~Map() {
@@ -49,14 +56,14 @@ void Map::loadMapFromFile(const std::string& filepath) {
     file >> rows >> cols;
 
     mapGrid.resize(rows, std::vector<BlockType>(cols, BlockType::NOTHING));
-    coinStatus.resize(rows, std::vector<CoinStatus>(cols, CoinStatus::DISAPPEAR));
-    coinAnimationFrame.resize(rows, std::vector<int>(cols, 0));
+    //coinStatus.resize(rows, std::vector<CoinStatus>(cols, CoinStatus::DISAPPEAR));
+    //coinAnimationFrame.resize(rows, std::vector<int>(cols, 0));
 
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
-            int tile;
+            char tile;
             file >> tile;
-            mapGrid[r][c] = static_cast<BlockType>(tile);
+            mapGrid[r][c] = static_cast<BlockType>(tile-'0');
             if (mapGrid[r][c] == BlockType::COIN) {
                 coinStatus[r][c] = CoinStatus::APPEAR;
             }
@@ -67,11 +74,13 @@ void Map::loadMapFromFile(const std::string& filepath) {
     // ...
 }
 
-void Map::draw(const Point& cameraPos) {
+void Map::draw() {
     // 用 Allegro 畫出可視範圍的地圖 tiles
     // cameraPos 代表相機(玩家視角)左上角的座標
 
      // 假設每格32x32像素
+
+    Engine::Point cameraPos = scene->getCam();
 
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < cols; ++c) {
@@ -81,22 +90,41 @@ void Map::draw(const Point& cameraPos) {
             // 這裡依據 mapGrid[r][c] 繪製相應圖片
             // 假設 tileset 分割好，每種 BlockType 對應一塊圖
             BlockType type = mapGrid[r][c];
-            if (type != BlockType::NOTHING) {
+            //if (type != BlockType::NOTHING) {
                 // 例如：
                 // al_draw_bitmap_region(tileset, srcX, srcY, tileSize, tileSize, drawX, drawY, 0);
-            }
+            //}
 
             // 繪製硬幣動畫（如果有）
-            if (coinStatus[r][c] == CoinStatus::APPEAR) {
+            //if (coinStatus[r][c] == CoinStatus::APPEAR) {
                 // al_draw_bitmap_region(coinSprites, frameX, frameY, ..., drawX, drawY, 0);
+            //}
+
+            if (type == BlockType::FLOOR) {
+                // 例如：
+                // al_draw_bitmap_region(tileset, srcX, srcY, tileSize, tileSize, drawX, drawY, 0);
+                al_draw_scaled_bitmap(tileSet[0]->bmp.get(), // image 
+                                             0, 0, 16, 16, // source x, source y, width, height
+                                             drawX, drawY, tileSize, tileSize, // destiny x, destiny y, destiny width, destiny height
+                                             0 // flag : set 0
+                                             );
+            }
+            else if (type == BlockType::WALL) {
+
+                al_draw_scaled_bitmap(tileSet[1]->bmp.get(), // image
+                                             0, 0, 16, 16, // source x, source y, width, height
+                                             drawX, drawY, tileSize, tileSize, // destiny x, destiny y, destiny width, destiny height
+                                             0 // flag : set 0
+                                             );
             }
         }
     }
 }
 
-void Map::update(const Point& playerPos, int& totalCoins) {
+void Map::update() {
     // 更新硬幣動畫、硬幣狀態等
     // 例如判斷玩家是否在硬幣上，更新 totalCoins 等
+    scene = getPlayScene();
 }
 
 bool Map::isWalkable(BlockType block) const {
@@ -122,4 +150,11 @@ BlockType Map::GetBlock(const Engine::Point& tilePos) {
     }
     // 超出邊界
     return BlockType::NOTHING;
+}
+
+int Map::GetWidth() const{
+    return cols;
+}
+int Map::GetHeight() const{
+    return rows;
 }

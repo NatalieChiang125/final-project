@@ -38,8 +38,11 @@ protected:
 
 public:
     Player* player;
+    Engine::Point Camera;
     Player* GetPlayer() const;
     Map* map;
+    int screenW;
+    int screenH;
     static bool DebugMode;
     static const std::vector<Engine::Point> directions;
     static const int MapWidth, MapHeight;
@@ -90,5 +93,6 @@ public:
     bool CheckSpaceValid(int x, int y);
     std::vector<std::vector<int>> CalculateBFSDistance();
     void ModifyReadMapTiles(int gx,int gy);
+    Engine::Point getCam();
 };
 #endif   // PLAYSCENE_HPP

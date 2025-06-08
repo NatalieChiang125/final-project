@@ -64,6 +64,9 @@ void PlayScene::Initialize() {
     money = GameMoney::totalMoney;
     SpeedMult = 1;
     map = new Map(); 
+    map->loadMapFromFile("Resource/map1.txt");
+    screenH = Engine::GameEngine::GetInstance().GetScreenHeight();
+    screenW = Engine::GameEngine::GetInstance().GetScreenWidth();
     TileMapGroup = new Group();
     //TileMapGroup->AddNewObject(map);  // 可選，除非你有設計讓 Group 負責顯示地圖物件
     AddNewObject(TileMapGroup);
@@ -81,7 +84,7 @@ void PlayScene::Initialize() {
     ReadMap();
     //map = new Map("Resource/map1.txt");
     
-    player = new Player("play/playerMove.png", MapWidth/2 +100 , MapHeight/2 + 100,64,66);
+    player = new Player("play/playerMove.png", MapWidth*50 +100 , MapHeight*50 + 100,64,66);
     AddNewObject(player);
     //新增的
     //map = dynamic_cast<Map*>(TileMapGroup->GetObjects().front());
@@ -107,6 +110,20 @@ void PlayScene::Terminate() {
 void PlayScene::Update(float deltaTime) {
     // If we use deltaTime directly, then we might have Bullet-through-paper problem.
     // Reference: Bullet-Through-Paper
+
+    map->update();
+    Camera.x = player->Position.x - screenW / 2;
+    Camera.y = player->Position.y - screenH / 2;
+    if(Camera.x < 0) Camera.x = 0;
+    if(Camera.y < 0) Camera.y = 0;
+
+    int mapWidth=(map->GetWidth())*BlockSize;
+    int mapHeight=(map->GetHeight())*BlockSize;
+
+    if(Camera.x > mapWidth-MapWidth) Camera.x = mapWidth-MapWidth;
+    if(Camera.y > mapHeight-MapHeight) Camera.y = mapHeight-MapHeight;
+
+    UIMoney->Text = std::string("x,y = ") + std::to_string((int)player->Position.x) + "," + std::to_string((int)player->Position.y);
 
     if (SpeedMult == 0)
         deathCountDown = -1;
@@ -171,7 +188,7 @@ void PlayScene::Update(float deltaTime) {
                 delete UIGroup;
                 delete imgTarget;*/
                 // Win.
-                Engine::GameEngine::GetInstance().ChangeScene("win");
+                //Engine::GameEngine::GetInstance().ChangeScene("win");
                 
             }
             continue;
@@ -212,9 +229,16 @@ void PlayScene::Update(float deltaTime) {
         preview->Update(deltaTime);
     }
 }
+
+Engine::Point PlayScene::getCam(){
+    return Camera;
+}
+
 void PlayScene::Draw() const {
     IScene::Draw();
-    if (DebugMode) {
+    map->draw();
+    player->Draw();
+    /*if (DebugMode) {
         // Draw reverse BFS distance on all reachable blocks.
         for (int i = 0; i < MapHeight; i++) {
             for (int j = 0; j < MapWidth; j++) {
@@ -226,7 +250,7 @@ void PlayScene::Draw() const {
                 }
             }
         }
-    }
+    }*/
 }
 void PlayScene::OnMouseDown(int button, int mx, int my) {
     if ((button & 1) && !imgTarget->Visible && preview) {
@@ -397,6 +421,8 @@ void PlayScene::ReadMap() {
     char c;
     std::vector<bool> mapData;
     std::ifstream fin(filename);
+    int _tmp;
+    fin >> _tmp >> _tmp;
     while (fin >> c) {
         switch (c) {
             case '0': mapData.push_back(false); break;
@@ -419,10 +445,10 @@ void PlayScene::ReadMap() {
         for (int j = 0; j < MapWidth; j++) {
             const int num = mapData[i * MapWidth + j];
             mapState[i][j] = num ? TILE_FLOOR : TILE_DIRT;
-            if (num)
+            /*if (num)
                 TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
             else
-                TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+                TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));*/
         }
     }
 }
@@ -442,44 +468,44 @@ void PlayScene::ConstructUI() {
     // Background
     UIGroup->AddNewObject(new Engine::Image("play/sand.png", 1280, 0, 320, 832));
     // Text
-    UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
+    //UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
     UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
-    UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
+    //UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
     TurretButton *btn;
     // Button 1
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/tower-base.png", 1294, 136, 0, 0, 0, 0),
-                           Engine::Sprite("play/turret-1.png", 1294, 136 - 8, 0, 0, 0, 0), 1294, 136, MachineGunTurret::Price);
+    //btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                       Engine::Sprite("play/tower-base.png", 1294, 136, 0, 0, 0, 0),
+    //                       Engine::Sprite("play/turret-1.png", 1294, 136 - 8, 0, 0, 0, 0), 1294, 136, MachineGunTurret::Price);
     // Reference: Class Member Function Pointer and std::bind.
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
-    UIGroup->AddNewControlObject(btn);
+    //btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 0));
+    //UIGroup->AddNewControlObject(btn);
     // Button 2
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/tower-base.png", 1370, 136, 0, 0, 0, 0),
-                           Engine::Sprite("play/turret-2.png", 1370, 136 - 8, 0, 0, 0, 0), 1370, 136, LaserTurret::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
-    UIGroup->AddNewControlObject(btn);
+    //btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                       Engine::Sprite("play/tower-base.png", 1370, 136, 0, 0, 0, 0),
+    //                       Engine::Sprite("play/turret-2.png", 1370, 136 - 8, 0, 0, 0, 0), 1370, 136, LaserTurret::Price);
+    //btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 1));
+    //UIGroup->AddNewControlObject(btn);
 
     //Button 3
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/tower-base.png", 1446, 136, 0, 0, 0, 0),
-                           Engine::Sprite("play/turret-3.png", 1446, 136 , 0, 0, 0, 0), 1446, 136, FireTurret::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
-    UIGroup->AddNewControlObject(btn);
+    //btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                       Engine::Sprite("play/tower-base.png", 1446, 136, 0, 0, 0, 0),
+    //                       Engine::Sprite("play/turret-3.png", 1446, 136 , 0, 0, 0, 0), 1446, 136, FireTurret::Price);
+    //btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 2));
+    //UIGroup->AddNewControlObject(btn);
 
     //Button 4
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/tower-base.png", 1522, 136, 0, 0, 0, 0),
-                           Engine::Sprite("play/turret-5.png", 1522, 136 , 0, 0, 0, 0), 1522, 136, ShieldTurret::Price);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 3));
-    UIGroup->AddNewControlObject(btn);
+    //btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                       Engine::Sprite("play/tower-base.png", 1522, 136, 0, 0, 0, 0),
+    //                       Engine::Sprite("play/turret-5.png", 1522, 136 , 0, 0, 0, 0), 1522, 136, ShieldTurret::Price);
+    //btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 3));
+    //UIGroup->AddNewControlObject(btn);
 
     //Button 5
-    btn = new TurretButton("play/floor.png", "play/dirt.png",
-                           Engine::Sprite("play/shovel-base.png", 1294, 200, 0, 0, 0, 0),
-                           Engine::Sprite("play/shovel.png", 1294, 200-8 , 0, 0, 0, 0), 1294, 200, 0);
-    btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 4));
-    UIGroup->AddNewControlObject(btn);
+    //btn = new TurretButton("play/floor.png", "play/dirt.png",
+    //                       Engine::Sprite("play/shovel-base.png", 1294, 200, 0, 0, 0, 0),
+    //                       Engine::Sprite("play/shovel.png", 1294, 200-8 , 0, 0, 0, 0), 1294, 200, 0);
+    //btn->SetOnClickCallback(std::bind(&PlayScene::UIBtnClicked, this, 4));
+    //UIGroup->AddNewControlObject(btn);
 
     int w = Engine::GameEngine::GetInstance().GetScreenSize().x;
     int h = Engine::GameEngine::GetInstance().GetScreenSize().y;

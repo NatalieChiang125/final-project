@@ -54,9 +54,9 @@ void QuizScene::NextQuestion() {
         if(correctNum==2){
             PlayScene* scene = dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetActiveScene()); // 呼叫這個成員函式
             if (scene) {
-                Player* player = scene->GetPlayer(); // 如果你有實作 GetPlayer()
+                Player* player = scene->GetPlayer();
                 if (player) {
-                    player->AddHP(3); // 正確呼叫
+                    player->AddHP(3);
                 }
             }
             GameMoney::totalMoney+=20;
