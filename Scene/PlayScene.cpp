@@ -72,6 +72,7 @@ void PlayScene::Initialize() {
     AddNewObject(GroundEffectGroup = new Group());
     AddNewObject(DebugIndicatorGroup = new Group());
     //AddNewObject(TowerGroup = new Group());
+    //不能刪，會潰堤
     AddNewObject(EnemyGroup = new Group());
     //AddNewObject(BulletGroup = new Group());
     AddNewObject(EffectGroup = new Group());
@@ -80,7 +81,7 @@ void PlayScene::Initialize() {
     ReadMap();
     //map = new Map("Resource/map1.txt");
     
-    player = new Player("play/player.png", MapWidth/2 +100 , MapHeight/2 + 100);
+    player = new Player("play/playerMove.png", MapWidth/2 +100 , MapHeight/2 + 100,64,66);
     AddNewObject(player);
     //新增的
     //map = dynamic_cast<Map*>(TileMapGroup->GetObjects().front());
@@ -367,6 +368,14 @@ void PlayScene::OnKeyDown(int keyCode) {
         SpeedMult = keyCode - ALLEGRO_KEY_0;
     }
 }
+
+void PlayScene::OnKeyUp(int keyCode) {
+    IScene::OnKeyUp(keyCode);
+    if (player) {
+        player->OnKeyUp(keyCode);
+    }
+}
+
 void PlayScene::Hit() {
     lives--;
     if (lives <= 0) {

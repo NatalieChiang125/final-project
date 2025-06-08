@@ -117,7 +117,7 @@ BlockType Map::GetBlock(const Engine::Point& tilePos) {
     int x = static_cast<int>(tilePos.x);
     int y = static_cast<int>(tilePos.y);
 
-    if (x >= 0 && x < PlayScene::MapWidth*2 && y >= 0 && y < PlayScene::MapHeight*2) {
+    if (x >= 0 && x < PlayScene::MapWidth && y >= 0 && y < PlayScene::MapHeight) {
         return tiles[y][x]; // y 是 row x 是 column
     }
     // 超出邊界
