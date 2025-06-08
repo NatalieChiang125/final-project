@@ -8,6 +8,8 @@
 
 #include "Engine/IScene.hpp"
 #include "Engine/Point.hpp"
+#include "Engine/map.hpp"
+#include "Player/Player.hpp"
 
 class Turret;
 namespace Engine {
@@ -27,6 +29,7 @@ private:
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
     float totalGameTime = 0.0f;
+    
 
 protected:
     int lives;
@@ -34,6 +37,8 @@ protected:
     int SpeedMult;
 
 public:
+    Player* player;
+    Map* map;
     static bool DebugMode;
     static const std::vector<Engine::Point> directions;
     static const int MapWidth, MapHeight;
