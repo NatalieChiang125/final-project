@@ -15,7 +15,7 @@ public:
     Tile(std::string imgTile, float x, float y);
 private:
     int spriteWidth = 64;        // 單格寬度
-    int spriteHeight = 66;       // 單格高度
+    int spriteHeight = 64;       // 單格高度
 
 };
 #endif   // Tiles_HPP

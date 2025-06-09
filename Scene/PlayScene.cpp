@@ -41,7 +41,7 @@
 
 bool PlayScene::DebugMode = false;
 const std::vector<Engine::Point> PlayScene::directions = { Engine::Point(-1, 0), Engine::Point(0, -1), Engine::Point(1, 0), Engine::Point(0, 1) };
-const int PlayScene::MapWidth = 20, PlayScene::MapHeight = 13;
+const int PlayScene::MapWidth = 40, PlayScene::MapHeight = 15;
 const int PlayScene::BlockSize = 64;
 const float PlayScene::DangerTime = 7.61;
 const Engine::Point PlayScene::SpawnGridPoint = Engine::Point(-1, 0);
@@ -84,7 +84,7 @@ void PlayScene::Initialize() {
     ReadMap();
     //map = new Map("Resource/map1.txt");
     
-    player = new Player("play/playerMove.png", MapWidth*50 +100 , MapHeight*50 + 100,64,66);
+    player = new Player("play/playerOwn.png", MapWidth*50-500 , MapHeight*50 ,115,100);
     AddNewObject(player);
     //新增的
     //map = dynamic_cast<Map*>(TileMapGroup->GetObjects().front());
@@ -111,7 +111,7 @@ void PlayScene::Update(float deltaTime) {
     // If we use deltaTime directly, then we might have Bullet-through-paper problem.
     // Reference: Bullet-Through-Paper
 
-    map->update();
+    map->update(deltaTime);
     Camera.x = player->Position.x - screenW / 2;
     Camera.y = player->Position.y - screenH / 2;
     if(Camera.x < 0) Camera.x = 0;
@@ -120,11 +120,11 @@ void PlayScene::Update(float deltaTime) {
     int mapWidth=(map->GetWidth())*BlockSize;
     int mapHeight=(map->GetHeight())*BlockSize;
 
-    if(Camera.x > mapWidth-MapWidth) Camera.x = mapWidth-MapWidth;
-    if(Camera.y > mapHeight-MapHeight) Camera.y = mapHeight-MapHeight;
+    if(Camera.x > mapWidth*3/2-MapWidth-280) Camera.x = mapWidth*3/2-MapWidth-280;
+    if(Camera.y > mapHeight*3/2-MapHeight-340) Camera.y = mapHeight*3/2-MapHeight-340;
 
-    UIMoney->Text = std::string("x,y = ") + std::to_string((int)player->Position.x) + "," + std::to_string((int)player->Position.y);
-
+    //UIMoney->Text = std::string("x,y = ") + std::to_string((int)player->Position.x) + "," + std::to_string((int)player->Position.y);
+    UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
     if (SpeedMult == 0)
         deathCountDown = -1;
     else if (deathCountDown != -1)
@@ -236,8 +236,10 @@ Engine::Point PlayScene::getCam(){
 
 void PlayScene::Draw() const {
     IScene::Draw();
+    
     map->draw();
     player->Draw();
+    UIGroup->Draw();
     /*if (DebugMode) {
         // Draw reverse BFS distance on all reachable blocks.
         for (int i = 0; i < MapHeight; i++) {
@@ -419,36 +421,52 @@ void PlayScene::ReadMap() {
     std::string filename = std::string("Resource/map") + std::to_string(MapId) + ".txt";
     // Read map file.
     char c;
-    std::vector<bool> mapData;
+    //std::vector<bool> mapData;
+    std::vector<int> mapData;
     std::ifstream fin(filename);
     int _tmp;
     fin >> _tmp >> _tmp;
     while (fin >> c) {
         switch (c) {
-            case '0': mapData.push_back(false); break;
-            case '1': mapData.push_back(true); break;
+            case '0': mapData.push_back(0); break;
+            case '1': mapData.push_back(1); break;
+            case '2': mapData.push_back(2); break;
+            case '3': mapData.push_back(3); break;
+            case '4': mapData.push_back(4); break;
+            case '5': mapData.push_back(5); break;
+            case '6': mapData.push_back(6); break;
             case '\n':
             case '\r':
                 if (static_cast<int>(mapData.size()) / MapWidth != 0)
                     throw std::ios_base::failure("Map data is corrupted.");
                 break;
-            default: throw std::ios_base::failure("Map data is corrupted.");
+            default: throw std::ios_base::failure("Map data is corrupted!");
         }
     }
     fin.close();
     // Validate map data.
     if (static_cast<int>(mapData.size()) != MapWidth * MapHeight)
-        throw std::ios_base::failure("Map data is corrupted.");
+        throw std::ios_base::failure("Map data is corrupted~");
     // Store map in 2d array.
     mapState = std::vector<std::vector<TileType>>(MapHeight, std::vector<TileType>(MapWidth));
     for (int i = 0; i < MapHeight; i++) {
         for (int j = 0; j < MapWidth; j++) {
             const int num = mapData[i * MapWidth + j];
-            mapState[i][j] = num ? TILE_FLOOR : TILE_DIRT;
-            /*if (num)
-                TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
-            else
-                TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));*/
+            //mapState[i][j] = num ? TILE_FLOOR : TILE_DIRT;
+            switch (num) {
+                case 0: mapState[i][j] = TILE_FLOOR; break;
+                case 1: mapState[i][j] = TILE_DIRT; break;
+                case 2: mapState[i][j] = TILE_TREE; break;
+                case 3: mapState[i][j] = TILE_ROCKROAD; break;
+                case 4: mapState[i][j] = TILE_HOUSE; break;
+                case 5: mapState[i][j] = TILE_FLOWER1; break;
+                case 6: mapState[i][j] = TILE_FLOWER2; break;
+                default: mapState[i][j] = TILE_UNKNOWN; break; // 預設處理
+            }
+            //if (num)
+            //    TileMapGroup->AddNewObject(new Engine::Image("play/floor.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
+            //else
+            //    TileMapGroup->AddNewObject(new Engine::Image("play/dirt.png", j * BlockSize, i * BlockSize, BlockSize, BlockSize));
         }
     }
 }
@@ -466,12 +484,12 @@ void PlayScene::ReadEnemyWave() {
 }
 void PlayScene::ConstructUI() {
     // Background
-    UIGroup->AddNewObject(new Engine::Image("play/sand.png", 1280, 0, 320, 832));
+    //UIGroup->AddNewObject(new Engine::Image("play/sand.png", 1280, 0, 320, 832));
     // Text
     //UIGroup->AddNewObject(new Engine::Label(std::string("Stage ") + std::to_string(MapId), "pirulen.ttf", 32, 1294, 0));
     UIGroup->AddNewObject(UIMoney = new Engine::Label(std::string("$") + std::to_string(money), "pirulen.ttf", 24, 1294, 48));
     //UIGroup->AddNewObject(UILives = new Engine::Label(std::string("Life ") + std::to_string(lives), "pirulen.ttf", 24, 1294, 88));
-    TurretButton *btn;
+    //TurretButton *btn;
     // Button 1
     //btn = new TurretButton("play/floor.png", "play/dirt.png",
     //                       Engine::Sprite("play/tower-base.png", 1294, 136, 0, 0, 0, 0),

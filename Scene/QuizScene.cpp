@@ -123,7 +123,7 @@ void QuizScene::Terminate() {
 }
 void QuizScene::BackOnClick(int stage) {
     // Change to select scene.
-    Engine::GameEngine::GetInstance().ChangeScene("start");
+    Engine::GameEngine::GetInstance().ChangeScene("play");
 }
 
 void QuizScene::ClearUI() {

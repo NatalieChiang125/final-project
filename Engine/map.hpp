@@ -28,9 +28,18 @@ namespace Engine {
 
 enum class BlockType : uint8_t {
     FLOOR,
+    //GRASS1,
+    //GRASS2,
+    //GRASSSAND,
     WALL,
-    DOOR_CLOSE,
-    HOLE,
+    //GRASSSAND,
+    TREE1,
+    ROCKROAD,
+    HOUSE,
+    FLOWER1,
+    FLOWER2,
+    //DOOR_CLOSE,
+    //HOLE,
     COIN,
     NOTHING
 };
@@ -46,7 +55,7 @@ protected:
     PlayScene *getPlayScene();
     PlayScene *scene;
 public:
-    int tileSize = 256;
+    int tileSize = 128;
     //Map(const std::string& filepath);
     Map();
 
@@ -57,7 +66,7 @@ public:
     //void draw(const Point& cameraPos);
     //void update(const Point& playerPos, int& totalCoins);
     void draw();
-    void update();
+    void update(float deltaTime);
 
     bool isWalkable(BlockType block) const;
     void Initialize() override;
@@ -74,7 +83,12 @@ private:
     int rows;
     int cols;
 
-    Tile* tileSet[6];
+    //bool hasTriggeredQuiz = false;
+    std::set<std::pair<int, int>> triggeredQuizzes;
+    bool WaitToChangeScene = false;
+    float quizTriggerTimer = 0.0f;
+
+    Tile* tileSet[10];
 
     // 使用vector管理地圖格子與硬幣狀態
     std::vector<std::vector<BlockType>> mapGrid;
