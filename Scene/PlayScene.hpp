@@ -24,7 +24,14 @@ private:
     enum TileType {
         TILE_DIRT,
         TILE_FLOOR,
+        //TILE_GRASS,
+        TILE_TREE,
+        TILE_ROCKROAD,
+        TILE_HOUSE,
+        TILE_FLOWER1,
+        TILE_FLOWER2,
         TILE_OCCUPIED,
+        TILE_UNKNOWN,
     };
     ALLEGRO_SAMPLE_ID bgmId;
     std::shared_ptr<ALLEGRO_SAMPLE_INSTANCE> deathBGMInstance;
