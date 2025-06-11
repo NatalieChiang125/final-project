@@ -26,6 +26,9 @@ private:
         TILE_FLOOR,
         //TILE_GRASS,
         TILE_TREE,
+        TILE_GROUND,
+        TILE_CSBUIDING,
+        TILE_LAKE,
         TILE_ROCKROAD,
         TILE_HOUSE,
         TILE_FLOWER1,
@@ -75,7 +78,8 @@ public:
     Engine::Image *imgTarget;
     Engine::Sprite *dangerIndicator;
     Turret *preview;
-    std::vector<std::vector<TileType>> mapState;
+    //std::vector<std::vector<TileType>> mapState;
+    std::vector<std::vector<BlockType>> mapState;
     std::vector<std::vector<int>> mapDistance;
     std::list<std::pair<int, float>> enemyWaveData;
     std::list<int> keyStrokes;
@@ -99,7 +103,10 @@ public:
     void UIBtnClicked(int id);
     bool CheckSpaceValid(int x, int y);
     std::vector<std::vector<int>> CalculateBFSDistance();
+    std::vector<Engine::Point> GetAllValidSpawnPoints();
     void ModifyReadMapTiles(int gx,int gy);
     Engine::Point getCam();
+    bool IsWalkable(int x, int y) const;
+    void healthDraw(float health) const;
 };
 #endif   // PLAYSCENE_HPP

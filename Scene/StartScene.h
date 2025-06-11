@@ -19,5 +19,6 @@ public:
     void ScoreBoardOnClick(int stage);
     void DailyOnClick(int stage);
     void QuizOnClick(int stage);
+    void RhythmOnClick(int stage);
 };
 #endif   // INC_2025_I2P2_TOWERDEFENSE_WITH_ANSWER_STARTSCENE_H

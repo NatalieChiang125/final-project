@@ -30,6 +30,7 @@ void Player::Update(float deltaTime) {
     PlayScene *scene = getPlayScene();
     Cam = scene->Camera;
     if (!scene || !scene->map) return;
+    
     Engine::Point velocity(0, 0);
     if (keyDown.count(ALLEGRO_KEY_W)) velocity.y -= 1;
     if (keyDown.count(ALLEGRO_KEY_S)) velocity.y += 1;
@@ -54,6 +55,12 @@ void Player::Update(float deltaTime) {
         }
 
         Engine::Point newPos = Position + velocity;
+        Engine::Point nbrX = Position;
+        Engine::Point nbrY = Position;
+        nbrX.x += velocity.x; // wall
+                              // player nbrX
+        nbrY.y += velocity.y; // nbrY
+                              // player wall
 
         if(newPos.x<20) newPos.x=20;
         if(newPos.y<35) newPos.y=35;
@@ -65,6 +72,8 @@ void Player::Update(float deltaTime) {
         if(newPos.y > mapHeight*(2)-spriteHeight+20) newPos.y = mapHeight*(2)-spriteHeight+20;
 
         Engine::Point tilePos = scene->map->WorldToTile(newPos);
+        Engine::Point tilePosX = scene->map->WorldToTile(nbrX);
+        Engine::Point tilePosY = scene->map->WorldToTile(nbrY);
         //PlayScene* scene = getPlayScene();
         /*if (scene && scene->map) {
             Engine::Point tilePos = scene->map->WorldToTile(newPos);
@@ -74,6 +83,14 @@ void Player::Update(float deltaTime) {
         }*/
        if (scene->map->isWalkable(scene->map->GetBlock(tilePos))) {
             Position = newPos;
+        }
+        // wall
+        // player
+        else if (scene->map->isWalkable(scene->map->GetBlock(tilePosX))){
+            Position = nbrX;
+        }
+        else if (scene->map->isWalkable(scene->map->GetBlock(tilePosY))){
+            Position = nbrY;
         }
     }
     else{
