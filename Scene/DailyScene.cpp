@@ -4,7 +4,7 @@
 #include "UI/Component/Label.hpp"
 #include "UI/Component/ImageButton.hpp"
 #include "Engine/AudioHelper.hpp"
-#include "Engine/GameMoney.hpp"
+#include "Engine/PlayerStat.hpp"
 #include "Scene/PlayScene.hpp"
 
 #include "fstream"
@@ -78,7 +78,7 @@ void DailyScene::OnCheckInClick(int day) {
     // 打卡成功
     checkedIn[day] = true;
     totalMoney += day+1;
-    GameMoney::totalMoney=totalMoney;
+    PlayerStat::totalMoney=totalMoney;
     /*PlayScene* playScene = dynamic_cast<PlayScene*>(Engine::GameEngine::GetInstance().GetScene("play"));
     if (playScene) {
         playScene->EarnMoney(day + 1);
@@ -100,7 +100,7 @@ void DailyScene::SaveStatus() {
     for (bool c : checkedIn)
          out << (c ? 1 : 0) << '\n';
     out.close();
-    GameMoney::totalMoney = totalMoney;
+    PlayerStat::totalMoney = totalMoney;
 
     //std::filesystem::path p = std::filesystem::absolute("daily_status.txt");
     //std::cout << "Saving to: " << p << std::endl;
@@ -126,7 +126,7 @@ void DailyScene::LoadStatus() {
     }
     time_t lastTime;
     in >> totalMoney;
-    GameMoney::totalMoney = totalMoney;
+    PlayerStat::totalMoney = totalMoney;
     in >> currentDay;
     in >> lastTime;
     for (int i = 0; i < 7; ++i) {

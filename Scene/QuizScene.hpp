@@ -9,6 +9,9 @@ struct Question {
     std::vector<std::string> options;
     int correctIndex;
 };
+namespace Engine{
+    class Label;
+}
 
 class QuizScene final : public Engine::IScene {
 private:
@@ -19,15 +22,29 @@ private:
     bool answered = false;
     bool correct = false;
     int correctNum;
+    float timeLeft;
+    float timeLimit = 8.0f;
+    float timeWait = 2.0f;
+    Engine::Label *UITime;
+    enum State {
+        ANSWERING = 0,
+        ANSWERED = 1,
+        FINISHED = 2,
+
+    };
+    State CurrentState = ANSWERING;
+
 
 public:
     explicit QuizScene() = default;
     void Initialize() override;
     void Terminate() override;
     void BackOnClick(int stage);
+    void Update(float deltaTime) override;
     void OptionOnClick(int index);
     void NextQuestion();
     void ClearUI();
+    void drawTime(float time);
 };
 
 #endif

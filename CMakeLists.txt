@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 include_directories(.)
 include_directories(Resource)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/External)
 
 file(COPY Resource/audios DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY Resource/fonts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -40,6 +41,8 @@ add_executable(2025_I2P2_TowerDefense
     Enemy/TankEnemy.hpp
     Enemy/BoomEnemy.cpp
     Enemy/BoomEnemy.hpp
+    Enemy/NoteEnemy.cpp
+    Enemy/NoteEnemy.hpp
 
     Engine/Allegro5Exception.cpp
     Engine/Allegro5Exception.hpp
@@ -67,8 +70,8 @@ add_executable(2025_I2P2_TowerDefense
     Engine/Sprite.hpp
     Engine/GameTime.cpp
     Engine/GameTime.hpp
-    Engine/GameMoney.cpp
-    Engine/GameMoney.hpp
+    Engine/PlayerStat.cpp
+    Engine/PlayerStat.hpp
     Engine/map.cpp
     Engine/map.hpp
     Engine/Tile.cpp
@@ -93,6 +96,11 @@ add_executable(2025_I2P2_TowerDefense
     Scene/DailyScene.hpp
     Scene/QuizScene.cpp
     Scene/QuizScene.hpp
+    Scene/RhythmGameConfig.hpp
+    Scene/RhythmGameScene.hpp
+    Scene/RhythmGameScene.cpp
+    Scene/ProgressScene.cpp
+    Scene/ProgressScene.hpp
 
     Turret/LaserTurret.cpp
     Turret/LaserTurret.hpp
@@ -126,21 +134,35 @@ add_executable(2025_I2P2_TowerDefense
     UI/Component/Label.hpp
     UI/Component/Slider.cpp
     UI/Component/Slider.hpp
+
+    ChatGPT_API/ChatGPT_API.cpp
+    ChatGPT_API/ChatGPT_API.hpp
     
     main.cpp
 )
 
-IF (WIN32)
-    target_include_directories(2025_I2P2_TowerDefense PUBLIC C:/allegro/include)
-    target_link_directories(2025_I2P2_TowerDefense PUBLIC C:/allegro/lib)
-    target_compile_options(2025_I2P2_TowerDefense PUBLIC ${ALLEGRO5_CFLAGS_OTHER})
-    target_link_libraries(2025_I2P2_TowerDefense liballegro_monolith)
-ELSE()
-    find_package(PkgConfig)
+# 加入 libcurl
+#find_package(CURL REQUIRED)
+set(CURL_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/third_party/curl/curl.h")
+#set(CURL_LIBRARY "${CMAKE_SOURCE_DIR}/third_party/lib/libcurl.a")
+set(CURL_LIBRARY_DLL "${CMAKE_SOURCE_DIR}/third_party/lib/libcurl.dll.a")
+#target_include_directories(2025_I2P2_TowerDefense PRIVATE "${CURL_INCLUDE_DIR}")
+target_link_libraries(2025_I2P2_TowerDefense PRIVATE "${CURL_LIBRARY}")
+target_link_libraries(2025_I2P2_TowerDefense PRIVATE "${CURL_LIBRARY_DLL}")
+#target_link_directories(2025_I2P2_TowerDefense PRIVATE "${CURL_LIB_DIR}")
+#target_link_libraries(2025_I2P2_TowerDefense PRIVATE curl ws2_32)
+target_link_libraries(2025_I2P2_TowerDefense PRIVATE ws2_32 wldap32 crypt32 normaliz advapi32)
+# 平台特定設定
+if (WIN32)
+    target_include_directories(2025_I2P2_TowerDefense PRIVATE C:/allegro/include)
+    target_link_directories(2025_I2P2_TowerDefense PRIVATE C:/allegro/lib)
+    target_compile_options(2025_I2P2_TowerDefense PRIVATE ${ALLEGRO5_CFLAGS_OTHER})
+    target_link_libraries(2025_I2P2_TowerDefense PRIVATE liballegro_monolith)
+else()
+    find_package(PkgConfig REQUIRED)
     pkg_check_modules(ALLEGRO5 REQUIRED allegro-5 allegro_main-5 allegro_font-5 allegro_dialog-5 allegro_primitives-5 allegro_image-5 allegro_ttf-5 allegro_audio-5 allegro_acodec-5)
-    target_include_directories(2025_I2P2_TowerDefense PUBLIC lib)
-    target_include_directories(2025_I2P2_TowerDefense PUBLIC ${ALLEGRO5_INCLUDE_DIRS})
-    target_compile_options(2025_I2P2_TowerDefense PUBLIC ${ALLEGRO5_CFLAGS_OTHER})
-    target_link_libraries(2025_I2P2_TowerDefense ${ALLEGRO5_LIBRARIES})
-    target_link_directories(2025_I2P2_TowerDefense PUBLIC ${ALLEGRO5_LIBRARY_DIRS})
-ENDIF()
+    target_include_directories(2025_I2P2_TowerDefense PRIVATE ${ALLEGRO5_INCLUDE_DIRS})
+    target_compile_options(2025_I2P2_TowerDefense PRIVATE ${ALLEGRO5_CFLAGS_OTHER})
+    target_link_libraries(2025_I2P2_TowerDefense PRIVATE ${ALLEGRO5_LIBRARIES})
+    target_link_directories(2025_I2P2_TowerDefense PRIVATE ${ALLEGRO5_LIBRARY_DIRS})
+endif()
